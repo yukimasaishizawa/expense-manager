@@ -375,8 +375,13 @@
         btn.classList.remove('text-amber-500');
         btn.classList.add('text-gray-500');
       });
-      event.currentTarget.classList.remove('text-gray-500');
-      event.currentTarget.classList.add('text-amber-500');
+      
+      // クリックイベントの代わりに対応するボタンを探して色を変更する
+      const activeBtn = document.querySelector(`button[onclick="switchTab('${tabId}')"]`);
+      if (activeBtn) {
+        activeBtn.classList.remove('text-gray-500');
+        activeBtn.classList.add('text-amber-500');
+      }
     };
 
     function renderUI() {
@@ -481,7 +486,14 @@
     function resetInputForm() {
       document.getElementById('transaction-form').reset();
       document.getElementById('edit-id').value = ''; 
-      document.getElementById('input-date').valueAsDate = new Date(); 
+      
+      // 今日の日付を YYYY-MM-DD 形式でセット
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      document.getElementById('input-date').value = `${yyyy}-${mm}-${dd}`;
+      
       document.querySelector('input[name="type"][value="expense"]').checked = true;
       toggleFormMode(); // 表示を戻す
       
@@ -534,6 +546,7 @@
             await addDoc(collection(db, "transactions"), data);
           }
         }
+        alert("登録しました！");
         resetInputForm();
         switchTab('dashboard'); 
       } catch (error) {
@@ -565,7 +578,7 @@
           const trFrom = document.createElement('tr');
           trFrom.className = "border-b border-gray-800 hover:bg-gray-800/50 transition-colors bg-blue-900/10";
           trFrom.innerHTML = `
-            <td class="p-3 text-gray-300 font-mono text-xs">${t.date.slice(5)}</td>
+            <td class="p-3 text-gray-300 font-mono text-xs">${t.date}</td>
             <td class="p-3">
               <div class="text-blue-300">資金移動 <span class="text-[10px] bg-rose-500/20 text-rose-300 px-1 rounded">出</span></div>
               <div class="text-[10px] text-gray-500">${t.fromAccount} ${t.memo ? ' '+t.memo : ''}</div>
@@ -584,7 +597,7 @@
           const trTo = document.createElement('tr');
           trTo.className = "border-b border-gray-800 hover:bg-gray-800/50 transition-colors bg-blue-900/10";
           trTo.innerHTML = `
-            <td class="p-3 text-gray-300 font-mono text-xs">${t.date.slice(5)}</td>
+            <td class="p-3 text-gray-300 font-mono text-xs">${t.date}</td>
             <td class="p-3">
               <div class="text-blue-300">資金移動 <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-1 rounded">入</span></div>
               <div class="text-[10px] text-gray-500">${t.toAccount} ${t.memo ? ' '+t.memo : ''}</div>
@@ -602,7 +615,7 @@
           const tr = document.createElement('tr');
           tr.className = "border-b border-gray-800 hover:bg-gray-800/50 transition-colors";
           tr.innerHTML = `
-            <td class="p-3 text-gray-300 font-mono text-xs">${t.date.slice(5)}</td>
+            <td class="p-3 text-gray-300 font-mono text-xs">${t.date}</td>
             <td class="p-3">
               <div class="text-gray-200">${t.category}</div>
               <div class="text-[10px] text-gray-500">${t.account} ${t.memo ? '- '+t.memo : ''}</div>
