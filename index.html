@@ -443,7 +443,7 @@
       document.getElementById('new-account-name').value = '';
       
       try {
-        if(db) await setDoc(doc(db, "settings", "global"), { accounts, budget: monthlyBudget });
+        if(db) await updateDoc(doc(db, "settings", "global"), { accounts: accounts });
       } catch (e) {
         console.warn("クラウド保存失敗", e);
       }
@@ -456,7 +456,7 @@
       accounts = accounts.filter(a => a !== accName);
       
       try {
-        if(db) await setDoc(doc(db, "settings", "global"), { accounts, budget: monthlyBudget });
+        if(db) await updateDoc(doc(db, "settings", "global"), { accounts: accounts });
       } catch (e) {
         console.warn("クラウド保存失敗", e);
       }
@@ -470,7 +470,7 @@
       monthlyBudget = val;
       
       try {
-        if(db) await setDoc(doc(db, "settings", "global"), { accounts, budget: monthlyBudget });
+        if(db) await updateDoc(doc(db, "settings", "global"), { budget: monthlyBudget });
         alert("予算を保存しました");
       } catch (e) {
         console.warn("クラウド保存失敗", e);
