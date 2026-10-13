@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My 家計簿 - Premium</title>
+  <title>Expense Manager</title>
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -55,7 +55,7 @@
     
     <!-- ヘッダー -->
     <header class="bg-gray-900 text-gray-200 p-4 border-b border-gray-800 flex justify-between items-center shrink-0">
-      <h1 class="text-lg font-bold tracking-wider"><i class="fa-solid fa-wallet text-amber-500 mr-2"></i>WEALTH DASHBOARD</h1>
+      <h1 class="text-lg font-bold tracking-wider"><i class="fa-solid fa-wallet text-amber-500 mr-2"></i>Expense Manager</h1>
       <div class="text-xs text-gray-400 uppercase tracking-widest">Personal</div>
     </header>
 
@@ -258,14 +258,14 @@
 
     // ⚠️【重要】Firebaseの設定情報
     const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_PROJECT_ID.appspot.com",
-      messagingSenderId: "YOUR_SENDER_ID",
-      appId: "YOUR_APP_ID"
-    };
-
+  apiKey: "AIzaSyDg5hFUvFsOPBlKscpirX0fEw188kLgifk",
+  authDomain: "expense-manager-4e7ca.firebaseapp.com",
+  projectId: "expense-manager-4e7ca",
+  storageBucket: "expense-manager-4e7ca.firebasestorage.app",
+  messagingSenderId: "34872948180",
+  appId: "1:34872948180:web:34b2aed5b0ba99b09c9241",
+  measurementId: "G-M6J57T5LRQ"
+};
     let db;
     try {
       const app = initializeApp(firebaseConfig);
