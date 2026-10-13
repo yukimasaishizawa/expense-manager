@@ -3,199 +3,230 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My 家計簿</title>
+  <title>My 家計簿 - Premium</title>
   
-  <!-- Tailwind CSS (スタイリング) -->
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   
-  <!-- FontAwesome (アイコン) -->
+  <!-- FontAwesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
-  <!-- Chart.js (グラフ) -->
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   
-  <!-- Tesseract.js (レシートOCR) -->
+  <!-- Tesseract.js -->
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
 
   <style>
-    /* 全体のベース設定 */
-    body { font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif; background-color: #f3f4f6; }
+    /* 全体のベース設定（ダークテーマ） */
+    body { font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif; background-color: #111827; color: #e5e7eb; }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
+    
     /* パスワード画面のオーバーレイ */
-    #login-overlay { position: fixed; inset: 0; background: #111827; z-index: 9999; display: flex; align-items: center; justify-content: center; }
-    /* ロード中スピナー */
-    .loader { border: 4px solid #f3f3f3; border-top: 4px solid #3b82f6; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; display: none;}
+    #login-overlay { position: fixed; inset: 0; background: #0b0f19; z-index: 9999; display: flex; align-items: center; justify-content: center; }
+    
+    /* ロード中スピナー（シックな色に） */
+    .loader { border: 3px solid #374151; border-top: 3px solid #d4af37; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: none;}
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    /* ダークモード用のスクロールバー */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #1f2937; }
+    ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
   </style>
 </head>
-<body class="text-gray-800 h-screen flex flex-col">
+<body class="h-screen flex flex-col overflow-hidden">
 
   <!-- ログイン（パスワード）画面 -->
   <div id="login-overlay">
-    <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-sm text-center">
-      <h1 class="text-2xl font-bold mb-4 text-gray-800"><i class="fa-solid fa-wallet text-blue-500"></i> My 家計簿</h1>
-      <p class="text-sm text-gray-500 mb-4">アクセスするにはパスワードを入力してください</p>
-      <input type="password" id="password-input" class="w-full border p-3 rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="パスワード">
-      <button onclick="checkPassword()" class="w-full bg-blue-600 text-white p-3 rounded font-bold hover:bg-blue-700 transition">ログイン</button>
-      <p id="login-error" class="text-red-500 text-sm mt-2 hidden">パスワードが違います</p>
+    <div class="bg-gray-800 p-8 rounded-2xl shadow-2xl border border-gray-700 w-full max-w-sm text-center">
+      <h1 class="text-2xl font-bold mb-4 text-gray-200"><i class="fa-solid fa-wallet text-amber-500"></i> My 家計簿</h1>
+      <p class="text-sm text-gray-400 mb-6">アクセスするにはパスワードを入力してください</p>
+      <input type="password" id="password-input" class="w-full bg-gray-900 border border-gray-600 text-white p-3 rounded-lg mb-4 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all" placeholder="パスワード">
+      <button onclick="checkPassword()" class="w-full bg-amber-600 text-white p-3 rounded-lg font-bold hover:bg-amber-500 transition-all shadow-lg shadow-amber-900/50">ログイン</button>
+      <p id="login-error" class="text-rose-400 text-sm mt-3 hidden"><i class="fa-solid fa-circle-exclamation"></i> パスワードが違います</p>
     </div>
   </div>
 
-  <!-- アプリケーション本体 (初期状態は非表示) -->
+  <!-- アプリケーション本体 -->
   <div id="app-container" class="hidden flex-1 flex flex-col h-full">
     
     <!-- ヘッダー -->
-    <header class="bg-blue-600 text-white p-4 shadow-md flex justify-between items-center">
-      <h1 class="text-xl font-bold"><i class="fa-solid fa-wallet"></i> My 家計簿</h1>
-      <div class="text-sm">ようこそ</div>
+    <header class="bg-gray-900 text-gray-200 p-4 border-b border-gray-800 flex justify-between items-center shrink-0">
+      <h1 class="text-lg font-bold tracking-wider"><i class="fa-solid fa-wallet text-amber-500 mr-2"></i>WEALTH DASHBOARD</h1>
+      <div class="text-xs text-gray-400 uppercase tracking-widest">Personal</div>
     </header>
 
-    <!-- メインコンテンツ領域 -->
-    <main class="flex-1 overflow-y-auto p-4 md:p-6 pb-24">
+    <!-- メインコンテンツ領域 (しっかりスクロールできるように pb-28 を設定) -->
+    <main class="flex-1 overflow-y-auto p-4 md:p-6 pb-28">
       
-      <!-- タブ1: ダッシュボード -->
-      <section id="tab-dashboard" class="tab-content active space-y-6">
+      <!-- タブ1: ダッシュボード (1画面に収まりやすいよう高さを調整) -->
+      <section id="tab-dashboard" class="tab-content active space-y-4 max-w-4xl mx-auto">
+        
+        <!-- 上段：サマリーカード -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- 予算進捗カード -->
-          <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <h2 class="text-lg font-bold text-gray-700 mb-2"><i class="fa-solid fa-bullseye text-red-400"></i> 今月の予算進捗</h2>
-            <div class="flex justify-between items-end mb-2">
-              <span class="text-3xl font-bold" id="dashboard-spent">¥0</span>
-              <span class="text-gray-500 text-sm">/ 予算 <span id="dashboard-budget">¥0</span></span>
+          <div class="bg-gray-800 p-5 rounded-2xl shadow-lg border border-gray-700 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-1 h-full bg-amber-500"></div>
+            <h2 class="text-sm font-semibold text-gray-400 mb-1 uppercase tracking-wider">今月の予算進捗</h2>
+            <div class="flex justify-between items-end mb-3">
+              <span class="text-3xl font-bold text-gray-100 font-mono" id="dashboard-spent">¥0</span>
+              <span class="text-gray-500 text-sm">/ <span id="dashboard-budget">¥0</span></span>
             </div>
-            <div class="w-full bg-gray-200 rounded-full h-3">
-              <div id="budget-progress-bar" class="bg-blue-500 h-3 rounded-full transition-all duration-500" style="width: 0%"></div>
+            <div class="w-full bg-gray-900 rounded-full h-2.5 mb-1">
+              <div id="budget-progress-bar" class="bg-amber-500 h-2.5 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
             </div>
-            <p id="budget-percent-text" class="text-right text-xs text-gray-500 mt-1">0% 使用</p>
+            <p id="budget-percent-text" class="text-right text-xs text-gray-400 font-mono">0%</p>
           </div>
-          <!-- 資産残高等のサマリーを入れる枠（拡張用） -->
-          <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <h2 class="text-lg font-bold text-gray-700 mb-2"><i class="fa-solid fa-piggy-bank text-yellow-400"></i> 今月の収支バランス</h2>
-            <div class="flex justify-between mt-4">
+          
+          <!-- 収支バランスカード -->
+          <div class="bg-gray-800 p-5 rounded-2xl shadow-lg border border-gray-700 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-1 h-full bg-indigo-500"></div>
+            <h2 class="text-sm font-semibold text-gray-400 mb-3 uppercase tracking-wider">今月の収支</h2>
+            <div class="flex justify-between items-center">
               <div>
-                <p class="text-xs text-gray-500">収入</p>
-                <p class="text-xl font-bold text-green-500" id="dashboard-income">¥0</p>
+                <p class="text-xs text-gray-500 mb-1">収入</p>
+                <p class="text-xl font-bold text-emerald-400 font-mono" id="dashboard-income">¥0</p>
               </div>
-              <div>
-                <p class="text-xs text-gray-500">支出</p>
-                <p class="text-xl font-bold text-red-500" id="dashboard-expense">¥0</p>
+              <div class="h-8 w-px bg-gray-700"></div>
+              <div class="text-right">
+                <p class="text-xs text-gray-500 mb-1">支出</p>
+                <p class="text-xl font-bold text-rose-400 font-mono" id="dashboard-expense">¥0</p>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- グラフ領域 -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-            <h3 class="text-center font-bold text-gray-600 mb-2">カテゴリ別支出 (今月)</h3>
-            <canvas id="pieChart"></canvas>
+        <!-- 下段：グラフ領域 (高さを抑える) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-gray-800 p-4 rounded-2xl shadow-lg border border-gray-700">
+            <h3 class="text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wider text-center">カテゴリ別支出</h3>
+            <div class="relative h-48 w-full"><canvas id="pieChart"></canvas></div>
           </div>
-          <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-            <h3 class="text-center font-bold text-gray-600 mb-2">月別支出推移 (直近6ヶ月)</h3>
-            <canvas id="lineChart"></canvas>
+          <div class="bg-gray-800 p-4 rounded-2xl shadow-lg border border-gray-700">
+            <h3 class="text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wider text-center">月別支出推移 (直近6ヶ月)</h3>
+            <div class="relative h-48 w-full"><canvas id="lineChart"></canvas></div>
           </div>
         </div>
       </section>
 
       <!-- タブ2: 入出金登録 -->
       <section id="tab-input" class="tab-content max-w-lg mx-auto">
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <h2 class="text-xl font-bold text-gray-700 mb-4"><i class="fa-solid fa-pen-to-square"></i> 取引の登録</h2>
+        <div class="bg-gray-800 p-6 rounded-2xl shadow-lg border border-gray-700">
+          <h2 class="text-lg font-bold text-gray-200 mb-5 border-b border-gray-700 pb-2"><i class="fa-solid fa-pen-nib text-amber-500 mr-2"></i>取引の登録</h2>
           
           <!-- OCR機能 -->
-          <div class="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
-            <label class="block text-sm font-bold text-blue-800 mb-2"><i class="fa-solid fa-camera"></i> レシートから自動読み取り</label>
-            <input type="file" id="receipt-upload" accept="image/*" class="w-full text-sm">
-            <button onclick="processOCR()" class="mt-2 bg-white border border-blue-300 text-blue-600 px-4 py-2 rounded shadow-sm hover:bg-blue-50 flex items-center gap-2">
-              読み取る <div id="ocr-loader" class="loader"></div>
+          <div class="mb-6 p-4 bg-gray-900 rounded-xl border border-gray-700">
+            <label class="block text-xs font-bold text-gray-400 mb-3 uppercase tracking-wider"><i class="fa-solid fa-camera mr-1"></i> レシート読取</label>
+            <input type="file" id="receipt-upload" accept="image/*" class="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-800 file:text-amber-500 hover:file:bg-gray-700 cursor-pointer">
+            <button onclick="processOCR()" class="mt-3 w-full bg-gray-800 border border-gray-600 text-gray-300 px-4 py-2 rounded-lg shadow hover:bg-gray-700 flex justify-center items-center gap-2 transition-colors">
+              自動入力する <div id="ocr-loader" class="loader"></div>
             </button>
-            <p class="text-xs text-gray-500 mt-1">※読み取り後、下のフォームに反映されます。必ず内容を確認・修正してください。</p>
           </div>
 
-          <form id="transaction-form" class="space-y-4">
-            <input type="hidden" id="edit-id"> <!-- 修正用ID -->
-            <div class="flex gap-4">
+          <form id="transaction-form" class="space-y-5">
+            <input type="hidden" id="edit-id">
+            
+            <!-- 収支トグル（シックなデザイン） -->
+            <div class="flex gap-3">
               <label class="flex-1 cursor-pointer">
                 <input type="radio" name="type" value="expense" checked class="peer sr-only">
-                <div class="p-2 text-center rounded border peer-checked:bg-red-500 peer-checked:text-white peer-checked:border-red-500 text-gray-600">支出</div>
+                <div class="py-2 text-center rounded-lg border border-gray-600 bg-gray-900 text-gray-400 peer-checked:bg-rose-900/30 peer-checked:text-rose-400 peer-checked:border-rose-500 transition-all text-sm font-bold">支出</div>
               </label>
               <label class="flex-1 cursor-pointer">
                 <input type="radio" name="type" value="income" class="peer sr-only">
-                <div class="p-2 text-center rounded border peer-checked:bg-green-500 peer-checked:text-white peer-checked:border-green-500 text-gray-600">収入</div>
+                <div class="py-2 text-center rounded-lg border border-gray-600 bg-gray-900 text-gray-400 peer-checked:bg-emerald-900/30 peer-checked:text-emerald-400 peer-checked:border-emerald-500 transition-all text-sm font-bold">収入</div>
               </label>
             </div>
             
-            <div><label class="text-sm font-bold text-gray-600">日付</label><input type="date" id="input-date" class="w-full border p-2 rounded mt-1" required></div>
-            <div><label class="text-sm font-bold text-gray-600">金額</label><input type="number" id="input-amount" class="w-full border p-2 rounded mt-1" required></div>
-            
-            <div>
-              <label class="text-sm font-bold text-gray-600">取引項目 (アカウント)</label>
-              <select id="input-account" class="w-full border p-2 rounded mt-1"></select>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="text-xs font-semibold text-gray-400 uppercase">日付</label>
+                <input type="date" id="input-date" class="w-full bg-gray-900 border border-gray-700 text-white p-2.5 rounded-lg mt-1 focus:ring-1 focus:ring-amber-500 focus:outline-none" required>
+              </div>
+              <div>
+                <label class="text-xs font-semibold text-gray-400 uppercase">金額 (¥)</label>
+                <input type="number" id="input-amount" class="w-full bg-gray-900 border border-gray-700 text-white p-2.5 rounded-lg mt-1 focus:ring-1 focus:ring-amber-500 focus:outline-none font-mono" required>
+              </div>
             </div>
             
-            <div>
-              <label class="text-sm font-bold text-gray-600">カテゴリ</label>
-              <select id="input-category" class="w-full border p-2 rounded mt-1">
-                <option value="食費">食費</option>
-                <option value="交通費">交通費</option>
-                <option value="日用品">日用品</option>
-                <option value="交際費">交際費</option>
-                <option value="給料">給料</option>
-                <option value="その他">その他</option>
-              </select>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="text-xs font-semibold text-gray-400 uppercase">アカウント</label>
+                <select id="input-account" class="w-full bg-gray-900 border border-gray-700 text-white p-2.5 rounded-lg mt-1 focus:ring-1 focus:ring-amber-500 focus:outline-none appearance-none"></select>
+              </div>
+              <div>
+                <label class="text-xs font-semibold text-gray-400 uppercase">カテゴリ</label>
+                <select id="input-category" class="w-full bg-gray-900 border border-gray-700 text-white p-2.5 rounded-lg mt-1 focus:ring-1 focus:ring-amber-500 focus:outline-none appearance-none">
+                  <option value="食費">食費</option>
+                  <option value="交通費">交通費</option>
+                  <option value="日用品">日用品</option>
+                  <option value="交際費">交際費</option>
+                  <option value="住居費">住居費</option>
+                  <option value="給料">給料</option>
+                  <option value="その他">その他</option>
+                </select>
+              </div>
             </div>
 
-            <div><label class="text-sm font-bold text-gray-600">メモ</label><input type="text" id="input-memo" class="w-full border p-2 rounded mt-1"></div>
+            <div>
+              <label class="text-xs font-semibold text-gray-400 uppercase">メモ</label>
+              <input type="text" id="input-memo" class="w-full bg-gray-900 border border-gray-700 text-white p-2.5 rounded-lg mt-1 focus:ring-1 focus:ring-amber-500 focus:outline-none placeholder-gray-600" placeholder="詳細を入力...">
+            </div>
             
-            <button type="submit" class="w-full bg-blue-600 text-white font-bold p-3 rounded-lg shadow hover:bg-blue-700">登録する</button>
-            <button type="button" id="cancel-edit-btn" onclick="cancelEdit()" class="w-full bg-gray-300 text-gray-700 font-bold p-3 rounded-lg shadow hidden mt-2">修正をキャンセル</button>
+            <div class="pt-2">
+              <button type="submit" class="w-full bg-amber-600 text-white font-bold py-3 rounded-lg shadow-lg shadow-amber-900/30 hover:bg-amber-500 transition-all">保存する</button>
+              <button type="button" id="cancel-edit-btn" onclick="cancelEdit()" class="w-full bg-gray-700 text-gray-300 font-bold py-3 rounded-lg shadow hidden mt-3 hover:bg-gray-600 transition-all">修正をキャンセル</button>
+            </div>
           </form>
         </div>
       </section>
 
       <!-- タブ3: 履歴確認 -->
-      <section id="tab-history" class="tab-content">
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 overflow-x-auto">
-          <h2 class="text-xl font-bold text-gray-700 mb-4"><i class="fa-solid fa-list"></i> 履歴一覧</h2>
-          <table class="w-full text-left min-w-[500px]">
-            <thead>
-              <tr class="bg-gray-50 text-gray-600 border-b">
-                <th class="p-3">日付</th>
-                <th class="p-3">項目</th>
-                <th class="p-3">カテゴリ</th>
-                <th class="p-3">金額</th>
-                <th class="p-3">操作</th>
-              </tr>
-            </thead>
-            <tbody id="history-table-body">
-              <!-- JSで動的に追加 -->
-            </tbody>
-          </table>
+      <section id="tab-history" class="tab-content max-w-4xl mx-auto">
+        <div class="bg-gray-800 p-5 rounded-2xl shadow-lg border border-gray-700 overflow-hidden">
+          <h2 class="text-lg font-bold text-gray-200 mb-4 border-b border-gray-700 pb-2"><i class="fa-solid fa-clock-rotate-left text-amber-500 mr-2"></i>取引履歴</h2>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left min-w-[500px]">
+              <thead>
+                <tr class="bg-gray-900 text-gray-400 text-xs uppercase tracking-wider">
+                  <th class="p-3 font-semibold rounded-tl-lg">日付</th>
+                  <th class="p-3 font-semibold">項目 / カテゴリ</th>
+                  <th class="p-3 font-semibold">金額</th>
+                  <th class="p-3 font-semibold text-center rounded-tr-lg">操作</th>
+                </tr>
+              </thead>
+              <tbody id="history-table-body" class="text-sm">
+                <!-- JSで動的に追加 -->
+              </tbody>
+            </table>
+          </div>
         </div>
       </section>
 
       <!-- タブ4: 設定 -->
-      <section id="tab-settings" class="tab-content max-w-lg mx-auto space-y-6">
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <h2 class="text-xl font-bold text-gray-700 mb-4"><i class="fa-solid fa-gear"></i> 設定</h2>
+      <section id="tab-settings" class="tab-content max-w-lg mx-auto space-y-5">
+        <div class="bg-gray-800 p-6 rounded-2xl shadow-lg border border-gray-700">
+          <h2 class="text-lg font-bold text-gray-200 mb-5 border-b border-gray-700 pb-2"><i class="fa-solid fa-sliders text-amber-500 mr-2"></i>設定</h2>
           
           <div class="mb-6">
-            <label class="text-sm font-bold text-gray-600">月間予算の設定</label>
-            <div class="flex gap-2 mt-1">
-              <input type="number" id="setting-budget" class="flex-1 border p-2 rounded" placeholder="例: 100000">
-              <button onclick="saveBudget()" class="bg-blue-600 text-white px-4 rounded">保存</button>
+            <label class="text-xs font-semibold text-gray-400 uppercase">月間予算 (¥)</label>
+            <div class="flex gap-2 mt-2">
+              <input type="number" id="setting-budget" class="flex-1 bg-gray-900 border border-gray-700 text-white p-2.5 rounded-lg focus:ring-1 focus:ring-amber-500 focus:outline-none font-mono">
+              <button onclick="saveBudget()" class="bg-gray-700 text-white px-5 rounded-lg hover:bg-gray-600 transition-colors font-bold border border-gray-600">保存</button>
             </div>
           </div>
 
           <div>
-            <label class="text-sm font-bold text-gray-600">取引項目の管理 (銀行・PayPayなど)</label>
-            <ul id="settings-account-list" class="mt-2 space-y-2 mb-4 border p-2 rounded bg-gray-50 h-32 overflow-y-auto">
+            <label class="text-xs font-semibold text-gray-400 uppercase">取引項目アカウント</label>
+            <ul id="settings-account-list" class="mt-2 space-y-2 mb-4 border border-gray-700 p-2 rounded-lg bg-gray-900 h-40 overflow-y-auto">
               <!-- 動的に追加 -->
             </ul>
             <div class="flex gap-2">
-              <input type="text" id="new-account-name" class="flex-1 border p-2 rounded" placeholder="新しい取引項目">
-              <button onclick="addAccount()" class="bg-green-600 text-white px-4 rounded"><i class="fa-solid fa-plus"></i> 追加</button>
+              <input type="text" id="new-account-name" class="flex-1 bg-gray-900 border border-gray-700 text-white p-2.5 rounded-lg focus:ring-1 focus:ring-amber-500 focus:outline-none" placeholder="新規アカウント名">
+              <button onclick="addAccount()" class="bg-indigo-600/80 text-white px-5 rounded-lg hover:bg-indigo-500 transition-colors font-bold"><i class="fa-solid fa-plus"></i></button>
             </div>
           </div>
         </div>
@@ -203,120 +234,109 @@
 
     </main>
 
-    <!-- ボトムナビゲーション -->
-    <nav class="bg-white border-t border-gray-200 fixed bottom-0 w-full flex justify-around text-xs text-gray-500 pb-safe">
-      <button onclick="switchTab('dashboard')" class="nav-btn flex-1 py-3 flex flex-col items-center gap-1 text-blue-600">
-        <i class="fa-solid fa-chart-pie text-lg"></i> ダッシュボード
+    <!-- ボトムナビゲーション (固定) -->
+    <nav class="bg-gray-900 border-t border-gray-800 fixed bottom-0 w-full flex justify-around text-[10px] sm:text-xs font-semibold pb-safe shrink-0 z-50">
+      <button onclick="switchTab('dashboard')" class="nav-btn flex-1 py-3 flex flex-col items-center gap-1 text-amber-500 transition-colors">
+        <i class="fa-solid fa-chart-line text-lg mb-0.5"></i> ダッシュボード
       </button>
-      <button onclick="switchTab('input')" class="nav-btn flex-1 py-3 flex flex-col items-center gap-1">
-        <i class="fa-solid fa-plus-circle text-lg"></i> 入出金
+      <button onclick="switchTab('input')" class="nav-btn flex-1 py-3 flex flex-col items-center gap-1 text-gray-500 hover:text-gray-300 transition-colors">
+        <i class="fa-solid fa-circle-plus text-lg mb-0.5"></i> 追 加
       </button>
-      <button onclick="switchTab('history')" class="nav-btn flex-1 py-3 flex flex-col items-center gap-1">
-        <i class="fa-solid fa-list-ul text-lg"></i> 履歴
+      <button onclick="switchTab('history')" class="nav-btn flex-1 py-3 flex flex-col items-center gap-1 text-gray-500 hover:text-gray-300 transition-colors">
+        <i class="fa-solid fa-clock-rotate-left text-lg mb-0.5"></i> 履 歴
       </button>
-      <button onclick="switchTab('settings')" class="nav-btn flex-1 py-3 flex flex-col items-center gap-1">
-        <i class="fa-solid fa-gear text-lg"></i> 設定
+      <button onclick="switchTab('settings')" class="nav-btn flex-1 py-3 flex flex-col items-center gap-1 text-gray-500 hover:text-gray-300 transition-colors">
+        <i class="fa-solid fa-sliders text-lg mb-0.5"></i> 設 定
       </button>
     </nav>
   </div>
 
   <!-- 🔽🔽🔽 JavaScript 実装部 🔽🔽🔽 -->
   <script type="module">
-    // --- 1. Firebaseの読み込み (CDN) ---
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    // ⚠️【重要】ご自身のFirebaseプロジェクトの設定値に書き換えてください
+    // ⚠️【重要】Firebaseの設定情報
     const firebaseConfig = {
-  apiKey: "AIzaSyDg5hFUvFsOPBlKscpirX0fEw188kLgifk",
-  authDomain: "expense-manager-4e7ca.firebaseapp.com",
-  projectId: "expense-manager-4e7ca",
-  storageBucket: "expense-manager-4e7ca.firebasestorage.app",
-  messagingSenderId: "34872948180",
-  appId: "1:34872948180:web:34b2aed5b0ba99b09c9241",
-  measurementId: "G-M6J57T5LRQ"
-};
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
 
-    // Firebase初期化
     let db;
     try {
       const app = initializeApp(firebaseConfig);
       db = getFirestore(app);
     } catch(e) {
-      console.warn("Firebase未設定です。ローカルの動作テストモードで動かします。", e);
-      // Firebaseが設定されていない場合でもエラーで止まらないようにモック化（実運用時は削除可）
+      console.warn("Firebase未設定です。ローカルの動作テストモードで動かします。");
       db = null; 
     }
 
-    // --- グローバル状態管理 ---
     let transactions = [];
-    let accounts = ["現金", "銀行振込", "PayPay"]; // 初期値
+    let accounts = ["現金", "銀行", "PayPay", "クレジットカード"];
     let monthlyBudget = 100000;
     
-    // グラフインスタンスの保持
     let chartPie = null;
     let chartLine = null;
 
-    // --- パスワード認証 (簡易版) ---
+    // ダークテーマ用 Chart.js グローバル設定
+    Chart.defaults.color = '#9ca3af'; 
+    Chart.defaults.borderColor = 'rgba(75, 85, 99, 0.3)';
+    Chart.defaults.font.family = "Helvetica Neue, Arial, sans-serif";
+
     window.checkPassword = () => {
       const pwd = document.getElementById("password-input").value;
-      if (pwd === "k$9#mX2!vP7&wQ4L") {
+      if (pwd === "yukki0819") {
         document.getElementById("login-overlay").style.display = "none";
         document.getElementById("app-container").classList.remove("hidden");
-        initApp(); // アプリ初期化
+        initApp();
       } else {
         document.getElementById("login-error").classList.remove("hidden");
       }
     };
 
-    // --- アプリ初期化 & Firestoreリスナー ---
     function initApp() {
-      document.getElementById('input-date').valueAsDate = new Date(); // 今日を初期値に
+      resetInputForm(); // 初期化時にフォームをリセット（今日の日付をセット）
 
-      if (!db) {
-        // Firebase未設定時のダミーデータ描画用
-        renderUI();
-        return;
-      }
+      if (!db) { renderUI(); return; }
 
-      // 1. 設定情報のリアルタイム取得
       onSnapshot(doc(db, "settings", "global"), (docSnap) => {
         if (docSnap.exists()) {
           const data = docSnap.data();
           if (data.accounts) accounts = data.accounts;
           if (data.budget) monthlyBudget = data.budget;
         } else {
-          // 初期設定ドキュメントの作成
-          setDoc(doc(db, "settings", "global"), { accounts: accounts, budget: monthlyBudget });
+          setDoc(doc(db, "settings", "global"), { accounts, budget: monthlyBudget });
         }
         updateSettingsUI();
         updateAccountDropdowns();
         updateDashboard();
       });
 
-      // 2. 履歴（トランザクション）のリアルタイム取得
       const q = query(collection(db, "transactions"), orderBy("date", "desc"));
       onSnapshot(q, (snapshot) => {
         transactions = [];
-        snapshot.forEach((doc) => {
-          transactions.push({ id: doc.id, ...doc.data() });
-        });
+        snapshot.forEach((doc) => transactions.push({ id: doc.id, ...doc.data() }));
         renderHistory();
         updateDashboard();
       });
     }
 
-    // --- タブ切り替え制御 ---
     window.switchTab = (tabId) => {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
       document.getElementById(`tab-${tabId}`).classList.add('active');
       
-      // ボタンの色変更
-      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('text-blue-600'));
-      event.currentTarget.classList.add('text-blue-600');
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('text-amber-500');
+        btn.classList.add('text-gray-500');
+      });
+      event.currentTarget.classList.remove('text-gray-500');
+      event.currentTarget.classList.add('text-amber-500');
     };
 
-    // --- UI更新系関数 ---
     function renderUI() {
       updateSettingsUI();
       updateAccountDropdowns();
@@ -334,7 +354,6 @@
       });
     }
 
-    // --- 設定タブの機能 ---
     window.addAccount = async () => {
       const name = document.getElementById('new-account-name').value.trim();
       if (!name) return;
@@ -344,7 +363,7 @@
     };
 
     window.deleteAccount = async (accName) => {
-      if (!confirm(`取引項目「${accName}」を本当に削除しますか？\n（※既存の履歴は消えません）`)) return;
+      if (!confirm(`アカウント「${accName}」を削除しますか？`)) return;
       accounts = accounts.filter(a => a !== accName);
       if(db) await setDoc(doc(db, "settings", "global"), { accounts, budget: monthlyBudget });
     };
@@ -354,7 +373,7 @@
       if (isNaN(val)) return;
       monthlyBudget = val;
       if(db) await setDoc(doc(db, "settings", "global"), { accounts, budget: monthlyBudget });
-      alert("予算を更新しました！");
+      alert("予算を保存しました");
     };
 
     function updateSettingsUI() {
@@ -363,16 +382,32 @@
       list.innerHTML = '';
       accounts.forEach(acc => {
         const li = document.createElement('li');
-        li.className = "flex justify-between items-center bg-white p-2 rounded shadow-sm text-sm border";
+        li.className = "flex justify-between items-center bg-gray-800 p-2.5 rounded-lg text-sm border border-gray-700";
         li.innerHTML = `
-          <span>${acc}</span>
-          <button onclick="deleteAccount('${acc}')" class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash"></i></button>
+          <span class="text-gray-200">${acc}</span>
+          <button onclick="deleteAccount('${acc}')" class="text-gray-500 hover:text-rose-400 transition-colors"><i class="fa-solid fa-trash"></i></button>
         `;
         list.appendChild(li);
       });
     }
 
-    // --- 入出金登録機能 (CRUD) ---
+    // --- フォームの完全リセット関数 ---
+    function resetInputForm() {
+      document.getElementById('transaction-form').reset(); // 基本項目のリセット
+      document.getElementById('edit-id').value = ''; // 修正用IDクリア
+      document.getElementById('input-date').valueAsDate = new Date(); // 日付を今日に
+      document.querySelector('input[name="type"][value="expense"]').checked = true; // 支出に戻す
+      
+      // selectタグを先頭に戻す
+      const accSelect = document.getElementById('input-account');
+      if(accSelect.options.length > 0) accSelect.selectedIndex = 0;
+      
+      const catSelect = document.getElementById('input-category');
+      if(catSelect.options.length > 0) catSelect.selectedIndex = 0;
+
+      document.getElementById('cancel-edit-btn').classList.add('hidden');
+    }
+
     document.getElementById('transaction-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       
@@ -390,48 +425,44 @@
       try {
         if(db) {
           if (editId) {
-            // 修正
             await updateDoc(doc(db, "transactions", editId), data);
-            alert("修正を保存しました");
           } else {
-            // 新規追加
             await addDoc(collection(db, "transactions"), data);
-            alert("登録しました");
           }
         }
         
-        // フォームリセット
-        e.target.reset();
-        document.getElementById('edit-id').value = '';
-        document.getElementById('input-date').valueAsDate = new Date();
-        document.getElementById('cancel-edit-btn').classList.add('hidden');
-        switchTab('dashboard'); // ダッシュボードに戻る
+        // 成功したらフォームを完全にリセット
+        resetInputForm();
+        switchTab('dashboard'); 
 
       } catch (error) {
-        console.error("保存エラー:", error);
+        console.error(error);
         alert("エラーが発生しました。");
       }
     });
 
-    // --- 履歴・修正・削除 ---
     function renderHistory() {
       const tbody = document.getElementById('history-table-body');
       tbody.innerHTML = '';
       
       transactions.forEach(t => {
-        const isExpense = t.type === 'expense';
+        const isEx = t.type === 'expense';
         const tr = document.createElement('tr');
-        tr.className = "border-b text-sm";
+        tr.className = "border-b border-gray-800 hover:bg-gray-800/50 transition-colors";
         tr.innerHTML = `
-          <td class="p-3">${t.date}</td>
-          <td class="p-3">${t.account}</td>
-          <td class="p-3">${t.category}</td>
-          <td class="p-3 font-bold ${isExpense ? 'text-red-500' : 'text-green-500'}">
-            ${isExpense ? '-' : '+'}¥${t.amount.toLocaleString()}
+          <td class="p-3 text-gray-300 font-mono text-xs">${t.date.slice(5)}</td>
+          <td class="p-3">
+            <div class="text-gray-200">${t.category}</div>
+            <div class="text-[10px] text-gray-500">${t.account} ${t.memo ? '- '+t.memo : ''}</div>
           </td>
-          <td class="p-3 flex gap-2">
-            <button onclick="editTransaction('${t.id}')" class="text-blue-500"><i class="fa-solid fa-pen"></i></button>
-            <button onclick="deleteTransaction('${t.id}')" class="text-red-500"><i class="fa-solid fa-trash"></i></button>
+          <td class="p-3 font-bold font-mono ${isEx ? 'text-rose-400' : 'text-emerald-400'}">
+            ${isEx ? '-' : '+'}¥${t.amount.toLocaleString()}
+          </td>
+          <td class="p-3 text-center">
+            <div class="flex justify-center gap-3">
+              <button onclick="editTransaction('${t.id}')" class="text-gray-500 hover:text-indigo-400 transition-colors"><i class="fa-solid fa-pen"></i></button>
+              <button onclick="deleteTransaction('${t.id}')" class="text-gray-500 hover:text-rose-400 transition-colors"><i class="fa-solid fa-trash"></i></button>
+            </div>
           </td>
         `;
         tbody.appendChild(tr);
@@ -439,7 +470,7 @@
     }
 
     window.deleteTransaction = async (id) => {
-      if (confirm("この履歴を本当に削除してよろしいですか？")) {
+      if (confirm("本当に削除しますか？")) {
         if(db) await deleteDoc(doc(db, "transactions", id));
       }
     };
@@ -457,27 +488,22 @@
       document.getElementById('input-memo').value = t.memo || '';
       
       document.getElementById('cancel-edit-btn').classList.remove('hidden');
-      switchTab('input'); // 入力タブに移動
+      switchTab('input');
     };
 
     window.cancelEdit = () => {
-      document.getElementById('transaction-form').reset();
-      document.getElementById('edit-id').value = '';
-      document.getElementById('input-date').valueAsDate = new Date();
-      document.getElementById('cancel-edit-btn').classList.add('hidden');
+      resetInputForm();
     }
 
-    // --- ダッシュボード集計 & グラフ描画 ---
     function updateDashboard() {
       const now = new Date();
       const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2, '0')}`;
       
       let thisMonthExpense = 0;
       let thisMonthIncome = 0;
-      let categoryData = {}; // { "食費": 10000, "交通費": 5000 }
+      let categoryData = {}; 
 
       transactions.forEach(t => {
-        // 今月のデータのみ集計
         if (t.date.startsWith(currentMonthStr)) {
           if (t.type === 'expense') {
             thisMonthExpense += t.amount;
@@ -488,25 +514,27 @@
         }
       });
 
-      // 数値更新
       document.getElementById('dashboard-spent').textContent = `¥${thisMonthExpense.toLocaleString()}`;
       document.getElementById('dashboard-budget').textContent = `¥${monthlyBudget.toLocaleString()}`;
       document.getElementById('dashboard-income').textContent = `¥${thisMonthIncome.toLocaleString()}`;
       document.getElementById('dashboard-expense').textContent = `¥${thisMonthExpense.toLocaleString()}`;
 
-      // 進捗バー更新
       const percent = Math.min(Math.round((thisMonthExpense / monthlyBudget) * 100), 100) || 0;
       const bar = document.getElementById('budget-progress-bar');
       bar.style.width = `${percent}%`;
-      document.getElementById('budget-percent-text').textContent = `${percent}% 使用`;
+      document.getElementById('budget-percent-text').textContent = `${percent}%`;
       
-      // 色の変更（80%以上で黄色、100%で赤）
-      bar.className = `h-3 rounded-full transition-all duration-500 ${percent >= 100 ? 'bg-red-500' : percent >= 80 ? 'bg-yellow-500' : 'bg-blue-500'}`;
+      // ゲージの色制御（シックな色合い）
+      if(percent >= 100) bar.className = 'h-2.5 rounded-full transition-all duration-1000 ease-out bg-rose-500';
+      else if(percent >= 80) bar.className = 'h-2.5 rounded-full transition-all duration-1000 ease-out bg-orange-500';
+      else bar.className = 'h-2.5 rounded-full transition-all duration-1000 ease-out bg-amber-500';
 
-      // グラフの描画更新
       drawPieChart(categoryData);
       drawLineChart();
     }
+
+    // シックなチャートカラーパレット
+    const chicColors = ['#d4af37', '#64748b', '#3b82f6', '#10b981', '#6366f1', '#8b5cf6', '#475569'];
 
     function drawPieChart(catData) {
       const ctx = document.getElementById('pieChart').getContext('2d');
@@ -520,15 +548,21 @@
           labels: labels.length ? labels : ['データなし'],
           datasets: [{
             data: data.length ? data : [1],
-            backgroundColor: ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#6b7280']
+            backgroundColor: labels.length ? chicColors : ['#374151'],
+            borderWidth: 0,
+            hoverOffset: 4
           }]
         },
-        options: { responsive: true, maintainAspectRatio: false }
+        options: { 
+          responsive: true, 
+          maintainAspectRatio: false,
+          cutout: '70%',
+          plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: {size: 10} } } }
+        }
       });
     }
 
     function drawLineChart() {
-      // 過去6ヶ月の月別支出を集計
       const monthlyTotals = {};
       for(let i=5; i>=0; i--) {
         let d = new Date();
@@ -548,25 +582,35 @@
       chartLine = new Chart(ctx, {
         type: 'line',
         data: {
-          labels: Object.keys(monthlyTotals).map(m => m.substring(5) + '月'),
+          labels: Object.keys(monthlyTotals).map(m => m.substring(5)),
           datasets: [{
-            label: '支出額',
+            label: '支出',
             data: Object.values(monthlyTotals),
-            borderColor: '#3b82f6',
-            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            borderColor: '#d4af37',
+            backgroundColor: 'rgba(212, 175, 55, 0.1)',
+            borderWidth: 2,
+            pointBackgroundColor: '#111827',
+            pointBorderColor: '#d4af37',
             fill: true,
-            tension: 0.3
+            tension: 0.4
           }]
         },
-        options: { responsive: true, maintainAspectRatio: false }
+        options: { 
+          responsive: true, 
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false } },
+            y: { beginAtZero: true, border: { dash: [4, 4] } }
+          }
+        }
       });
     }
 
-    // --- レシートOCR機能 (Tesseract.js) ---
     window.processOCR = async () => {
       const fileInput = document.getElementById('receipt-upload');
       if (!fileInput.files || fileInput.files.length === 0) {
-        alert("レシートの画像を選択してください。"); return;
+        alert("画像を選択してください。"); return;
       }
       
       const loader = document.getElementById('ocr-loader');
@@ -574,15 +618,9 @@
 
       try {
         const file = fileInput.files[0];
-        // Tesseractによる日本語解析（少し時間がかかります）
-        const result = await Tesseract.recognize(file, 'jpn', {
-          logger: m => console.log(m)
-        });
-        
+        const result = await Tesseract.recognize(file, 'jpn');
         const text = result.data.text;
-        console.log("OCR結果:", text);
 
-        // 簡易的な解析（最大の数字を金額として推測）
         const numRegex = /[0-9,]+/g;
         let amounts = text.match(numRegex) || [];
         amounts = amounts.map(n => parseInt(n.replace(/,/g, ''))).filter(n => !isNaN(n));
@@ -590,17 +628,16 @@
 
         if (maxAmount > 0) {
           document.getElementById('input-amount').value = maxAmount;
-          document.getElementById('input-memo').value = "自動読み取り (必ず金額を確認してください)";
-          alert(`金額 ${maxAmount}円 を読み取りました。\n※正確でない場合があるため、必ず内容を確認・修正してください。`);
+          document.getElementById('input-memo').value = "自動読取 (金額要確認)";
+          alert(`¥${maxAmount} を検出しました。\n※必ず内容を確認してください。`);
         } else {
-          alert("金額をうまく読み取れませんでした。手動で入力してください。");
+          alert("金額を検出できませんでした。");
         }
       } catch (error) {
-        console.error(error);
-        alert("読み取り中にエラーが発生しました。");
+        alert("エラーが発生しました。");
       } finally {
         loader.style.display = 'none';
-        fileInput.value = ''; // ファイルクリア
+        fileInput.value = ''; 
       }
     };
   </script>
