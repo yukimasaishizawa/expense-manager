@@ -118,36 +118,35 @@
           <h2 class="text-lg font-bold text-gray-200 mb-5 border-b border-gray-700 pb-2"><i class="fa-solid fa-pen-nib text-amber-500 mr-2"></i>取引の登録</h2>
           
           <!-- OCR機能 -->
-<div class="mb-6 p-4 bg-gray-900 rounded-xl border border-gray-700">
-  <label class="block text-xs font-bold text-gray-400 mb-3 uppercase tracking-wider"><i class="fa-solid fa-camera mr-1"></i> レシート読取</label>
-  
-  <div class="flex gap-2 mb-3">
-    <!-- カメラで直接撮影 -->
-    <label class="flex-1 text-center bg-gray-800 border border-gray-600 text-amber-500 py-2 rounded-lg shadow hover:bg-gray-700 cursor-pointer text-sm font-semibold transition-colors">
-      <i class="fa-solid fa-camera mr-1"></i> カメラ起動
-      <input type="file" id="receipt-camera" accept="image/*" capture="environment" class="hidden" onchange="handleFileSelect(this)">
-    </label>
-    
-    <!-- ギャラリーから写真を選択 -->
-    <label class="flex-1 text-center bg-gray-800 border border-gray-600 text-amber-500 py-2 rounded-lg shadow hover:bg-gray-700 cursor-pointer text-sm font-semibold transition-colors">
-      <i class="fa-solid fa-image mr-1"></i> 写真から
-      <input type="file" id="receipt-upload" accept="image/*" class="hidden" onchange="handleFileSelect(this)">
-    </label>
-  </div>
-  
-  <!-- 選択されたファイル名を表示する領域 -->
-  <div id="selected-file-name" class="text-xs text-gray-400 mb-3 text-center hidden"></div>
+          <div class="mb-6 p-4 bg-gray-900 rounded-xl border border-gray-700">
+            <label class="block text-xs font-bold text-gray-400 mb-3 uppercase tracking-wider"><i class="fa-solid fa-camera mr-1"></i> レシート読取</label>
+            
+            <div class="flex gap-2 mb-3">
+              <!-- カメラで直接撮影 -->
+              <label class="flex-1 text-center bg-gray-800 border border-gray-600 text-amber-500 py-2 rounded-lg shadow hover:bg-gray-700 cursor-pointer text-sm font-semibold transition-colors">
+                <i class="fa-solid fa-camera mr-1"></i> カメラ起動
+                <input type="file" id="receipt-camera" accept="image/*" capture="environment" class="hidden" onchange="handleFileSelect(this)">
+              </label>
+              
+              <!-- ギャラリーから写真を選択 -->
+              <label class="flex-1 text-center bg-gray-800 border border-gray-600 text-amber-500 py-2 rounded-lg shadow hover:bg-gray-700 cursor-pointer text-sm font-semibold transition-colors">
+                <i class="fa-solid fa-image mr-1"></i> 写真から
+                <input type="file" id="receipt-upload" accept="image/*" class="hidden" onchange="handleFileSelect(this)">
+              </label>
+            </div>
+            
+            <!-- 選択されたファイル名を表示する領域 -->
+            <div id="selected-file-name" class="text-xs text-gray-400 mb-3 text-center hidden"></div>
 
-  <button onclick="processOCR()" class="w-full bg-gray-800 border border-gray-600 text-gray-300 px-4 py-2 rounded-lg shadow hover:bg-gray-700 flex justify-center items-center gap-2 transition-colors">
-    自動入力する <div id="ocr-loader" class="loader"></div>
-  </button>
-</div>
-
+            <button onclick="processOCR()" class="w-full bg-gray-800 border border-gray-600 text-gray-300 px-4 py-2 rounded-lg shadow hover:bg-gray-700 flex justify-center items-center gap-2 transition-colors">
+              自動入力する <div id="ocr-loader" class="loader"></div>
+            </button>
+          </div>
 
           <form id="transaction-form" class="space-y-5">
             <input type="hidden" id="edit-id">
             
-            <!-- 収支トグル（移動を追加し、onchangeイベントを設定） -->
+            <!-- 収支トグル -->
             <div class="flex gap-3">
               <label class="flex-1 cursor-pointer">
                 <input type="radio" name="type" value="expense" checked class="peer sr-only" onchange="toggleFormMode()">
@@ -174,7 +173,7 @@
               </div>
             </div>
             
-            <!-- 通常の支出・収入用の入力項目（appearance-none を削除して選択可能に修正） -->
+            <!-- 通常の支出・収入用の入力項目 -->
             <div id="normal-fields" class="grid grid-cols-2 gap-4">
               <div>
                 <label class="text-xs font-semibold text-gray-400 uppercase">アカウント</label>
@@ -194,7 +193,7 @@
               </div>
             </div>
 
-            <!-- 移動用の入力項目（初期状態は非表示） -->
+            <!-- 移動用の入力項目 -->
             <div id="transfer-fields" class="grid grid-cols-2 gap-4 hidden">
               <div>
                 <label class="text-xs font-semibold text-gray-400 uppercase text-rose-400">移動元 (マイナス)</label>
@@ -294,14 +293,15 @@
 
     // ⚠️【重要】Firebaseの設定情報
     const firebaseConfig = {
-  apiKey: "AIzaSyDg5hFUvFsOPBlKscpirX0fEw188kLgifk",
-  authDomain: "expense-manager-4e7ca.firebaseapp.com",
-  projectId: "expense-manager-4e7ca",
-  storageBucket: "expense-manager-4e7ca.firebasestorage.app",
-  messagingSenderId: "34872948180",
-  appId: "1:34872948180:web:34b2aed5b0ba99b09c9241",
-  measurementId: "G-M6J57T5LRQ"
-};
+      apiKey: "AIzaSyDg5hFUvFsOPBlKscpirX0fEw188kLgifk",
+      authDomain: "expense-manager-4e7ca.firebaseapp.com",
+      projectId: "expense-manager-4e7ca",
+      storageBucket: "expense-manager-4e7ca.firebasestorage.app",
+      messagingSenderId: "34872948180",
+      appId: "1:34872948180:web:34b2aed5b0ba99b09c9241",
+      measurementId: "G-M6J57T5LRQ"
+    };
+    
     let db;
     try {
       const app = initializeApp(firebaseConfig);
@@ -335,29 +335,35 @@
     };
 
     function initApp() {
-      resetInputForm(); // 初期化時にフォームをリセット（今日の日付をセット）
+      resetInputForm();
 
       if (!db) { renderUI(); return; }
 
+      // グローバル設定の取得
       onSnapshot(doc(db, "settings", "global"), (docSnap) => {
         if (docSnap.exists()) {
           const data = docSnap.data();
           if (data.accounts) accounts = data.accounts;
           if (data.budget) monthlyBudget = data.budget;
         } else {
-          setDoc(doc(db, "settings", "global"), { accounts, budget: monthlyBudget });
+          setDoc(doc(db, "settings", "global"), { accounts, budget: monthlyBudget })
+            .catch(e => console.warn("初期設定の保存に失敗しました:", e));
         }
-        updateSettingsUI();
-        updateAccountDropdowns();
-        updateDashboard();
+        renderUI(); // 取得完了後に必ずUIを更新
+      }, (error) => {
+        console.warn("Firestoreの読み込み権限がないかエラーです:", error);
+        renderUI();
       });
 
+      // 取引履歴の取得
       const q = query(collection(db, "transactions"), orderBy("date", "desc"));
       onSnapshot(q, (snapshot) => {
         transactions = [];
         snapshot.forEach((doc) => transactions.push({ id: doc.id, ...doc.data() }));
         renderHistory();
         updateDashboard();
+      }, (error) => {
+        console.warn("履歴データの取得に失敗しました:", error);
       });
     }
 
@@ -380,7 +386,7 @@
       updateDashboard();
     }
 
-    // --- 追加: トグルの切り替え制御 ---
+    // トグルの切り替え制御
     window.toggleFormMode = () => {
       const type = document.querySelector('input[name="type"]:checked').value;
       if (type === 'transfer') {
@@ -392,7 +398,7 @@
       }
     };
 
-    // --- 修正: アカウント一覧を全プルダウンに反映 ---
+    // アカウント一覧を全プルダウンに反映
     function updateAccountDropdowns() {
       const selectAcc = document.getElementById('input-account');
       const selectFrom = document.getElementById('transfer-from');
@@ -409,7 +415,69 @@
       });
     }
 
-    // --- 修正: フォームリセット処理 ---
+    // 設定画面のUI更新
+    function updateSettingsUI() {
+      const budgetInput = document.getElementById('setting-budget');
+      if (budgetInput) budgetInput.value = monthlyBudget;
+      
+      const list = document.getElementById('settings-account-list');
+      if (list) {
+        list.innerHTML = '';
+        accounts.forEach(acc => {
+          const li = document.createElement('li');
+          li.className = "flex justify-between items-center bg-gray-800 p-2 rounded border border-gray-700";
+          li.innerHTML = `
+            <span class="text-gray-300 text-sm">${acc}</span>
+            <button onclick="deleteAccount('${acc}')" class="text-rose-400 hover:text-rose-300"><i class="fa-solid fa-trash text-xs"></i></button>
+          `;
+          list.appendChild(li);
+        });
+      }
+    }
+
+    // アカウントの追加
+    window.addAccount = async () => {
+      const name = document.getElementById('new-account-name').value.trim();
+      if (!name) return;
+      accounts.push(name);
+      document.getElementById('new-account-name').value = '';
+      
+      try {
+        if(db) await setDoc(doc(db, "settings", "global"), { accounts, budget: monthlyBudget });
+      } catch (e) {
+        console.warn("クラウド保存失敗", e);
+      }
+      renderUI(); 
+    };
+
+    // アカウントの削除
+    window.deleteAccount = async (accName) => {
+      if (!confirm(`アカウント「${accName}」を削除しますか？`)) return;
+      accounts = accounts.filter(a => a !== accName);
+      
+      try {
+        if(db) await setDoc(doc(db, "settings", "global"), { accounts, budget: monthlyBudget });
+      } catch (e) {
+        console.warn("クラウド保存失敗", e);
+      }
+      renderUI(); 
+    };
+
+    // 予算の保存
+    window.saveBudget = async () => {
+      const val = parseInt(document.getElementById('setting-budget').value);
+      if (isNaN(val)) return;
+      monthlyBudget = val;
+      
+      try {
+        if(db) await setDoc(doc(db, "settings", "global"), { accounts, budget: monthlyBudget });
+        alert("予算を保存しました");
+      } catch (e) {
+        console.warn("クラウド保存失敗", e);
+      }
+      renderUI(); 
+    };
+
     function resetInputForm() {
       document.getElementById('transaction-form').reset();
       document.getElementById('edit-id').value = ''; 
@@ -432,7 +500,6 @@
       document.getElementById('cancel-edit-btn').classList.add('hidden');
     }
 
-    // --- 修正: 保存ボタン押下時 ---
     document.getElementById('transaction-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       
@@ -475,7 +542,19 @@
       }
     });
 
-    // --- 修正: 履歴レンダリング処理（2行表示に対応） ---
+    window.cancelEdit = () => {
+      resetInputForm();
+    };
+
+    window.deleteTransaction = async (id) => {
+      if(!confirm("本当に削除しますか？")) return;
+      try {
+        if(db) await deleteDoc(doc(db, "transactions", id));
+      } catch(error) {
+        alert("エラーが発生しました。");
+      }
+    };
+
     function renderHistory() {
       const tbody = document.getElementById('history-table-body');
       tbody.innerHTML = '';
@@ -543,7 +622,6 @@
       });
     }
 
-    // --- 修正: 取引の編集処理 ---
     window.editTransaction = (id) => {
       const t = transactions.find(x => x.id === id);
       if(!t) return;
@@ -568,7 +646,6 @@
       switchTab('input');
     };
 
-    // --- 修正: ダッシュボード計算ロジック（移動を計算から除外） ---
     function updateDashboard() {
       const now = new Date();
       const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2, '0')}`;
@@ -585,7 +662,6 @@
           } else if (t.type === 'income') {
             thisMonthIncome += t.amount;
           }
-          // ※ type === 'transfer' の場合は収支の合計には影響させない
         }
       });
 
@@ -682,10 +758,8 @@
       });
     }
 
-        // 選択されたファイルを保持する変数
     let selectedFile = null;
 
-    // ファイルが選択された（または撮影された）時に呼ばれる処理
     window.handleFileSelect = (input) => {
       if (input.files && input.files.length > 0) {
         selectedFile = input.files[0];
@@ -695,7 +769,6 @@
       }
     };
 
-    // OCR処理本体
     window.processOCR = async () => {
       if (!selectedFile) {
         alert("カメラで撮影するか、画像を選択してください。"); 
@@ -726,7 +799,6 @@
       } finally {
         loader.style.display = 'none';
         
-        // 処理終了後に状態をリセット
         selectedFile = null;
         document.getElementById('selected-file-name').classList.add('hidden');
         document.getElementById('receipt-camera').value = ''; 
