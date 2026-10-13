@@ -147,15 +147,19 @@
           <form id="transaction-form" class="space-y-5">
             <input type="hidden" id="edit-id">
             
-            <!-- 収支トグル（シックなデザイン） -->
+            <!-- 収支トグル（移動を追加し、onchangeイベントを設定） -->
             <div class="flex gap-3">
               <label class="flex-1 cursor-pointer">
-                <input type="radio" name="type" value="expense" checked class="peer sr-only">
+                <input type="radio" name="type" value="expense" checked class="peer sr-only" onchange="toggleFormMode()">
                 <div class="py-2 text-center rounded-lg border border-gray-600 bg-gray-900 text-gray-400 peer-checked:bg-rose-900/30 peer-checked:text-rose-400 peer-checked:border-rose-500 transition-all text-sm font-bold">支出</div>
               </label>
               <label class="flex-1 cursor-pointer">
-                <input type="radio" name="type" value="income" class="peer sr-only">
+                <input type="radio" name="type" value="income" class="peer sr-only" onchange="toggleFormMode()">
                 <div class="py-2 text-center rounded-lg border border-gray-600 bg-gray-900 text-gray-400 peer-checked:bg-emerald-900/30 peer-checked:text-emerald-400 peer-checked:border-emerald-500 transition-all text-sm font-bold">収入</div>
+              </label>
+              <label class="flex-1 cursor-pointer">
+                <input type="radio" name="type" value="transfer" class="peer sr-only" onchange="toggleFormMode()">
+                <div class="py-2 text-center rounded-lg border border-gray-600 bg-gray-900 text-gray-400 peer-checked:bg-blue-900/30 peer-checked:text-blue-400 peer-checked:border-blue-500 transition-all text-sm font-bold">移動</div>
               </label>
             </div>
             
@@ -170,14 +174,15 @@
               </div>
             </div>
             
-            <div class="grid grid-cols-2 gap-4">
+            <!-- 通常の支出・収入用の入力項目（appearance-none を削除して選択可能に修正） -->
+            <div id="normal-fields" class="grid grid-cols-2 gap-4">
               <div>
                 <label class="text-xs font-semibold text-gray-400 uppercase">アカウント</label>
-                <select id="input-account" class="w-full bg-gray-900 border border-gray-700 text-white p-2.5 rounded-lg mt-1 focus:ring-1 focus:ring-amber-500 focus:outline-none appearance-none"></select>
+                <select id="input-account" class="w-full bg-gray-900 border border-gray-700 text-white p-2.5 rounded-lg mt-1 focus:ring-1 focus:ring-amber-500 focus:outline-none"></select>
               </div>
               <div>
                 <label class="text-xs font-semibold text-gray-400 uppercase">カテゴリ</label>
-                <select id="input-category" class="w-full bg-gray-900 border border-gray-700 text-white p-2.5 rounded-lg mt-1 focus:ring-1 focus:ring-amber-500 focus:outline-none appearance-none">
+                <select id="input-category" class="w-full bg-gray-900 border border-gray-700 text-white p-2.5 rounded-lg mt-1 focus:ring-1 focus:ring-amber-500 focus:outline-none">
                   <option value="食費">食費</option>
                   <option value="交通費">交通費</option>
                   <option value="日用品">日用品</option>
@@ -186,6 +191,18 @@
                   <option value="給料">給料</option>
                   <option value="その他">その他</option>
                 </select>
+              </div>
+            </div>
+
+            <!-- 移動用の入力項目（初期状態は非表示） -->
+            <div id="transfer-fields" class="grid grid-cols-2 gap-4 hidden">
+              <div>
+                <label class="text-xs font-semibold text-gray-400 uppercase text-rose-400">移動元 (マイナス)</label>
+                <select id="transfer-from" class="w-full bg-gray-900 border border-gray-700 text-white p-2.5 rounded-lg mt-1 focus:ring-1 focus:ring-blue-500 focus:outline-none"></select>
+              </div>
+              <div>
+                <label class="text-xs font-semibold text-gray-400 uppercase text-emerald-400">移動先 (プラス)</label>
+                <select id="transfer-to" class="w-full bg-gray-900 border border-gray-700 text-white p-2.5 rounded-lg mt-1 focus:ring-1 focus:ring-blue-500 focus:outline-none"></select>
               </div>
             </div>
 
@@ -199,6 +216,7 @@
               <button type="button" id="cancel-edit-btn" onclick="cancelEdit()" class="w-full bg-gray-700 text-gray-300 font-bold py-3 rounded-lg shadow hidden mt-3 hover:bg-gray-600 transition-all">修正をキャンセル</button>
             </div>
           </form>
+
         </div>
       </section>
 
@@ -362,83 +380,84 @@
       updateDashboard();
     }
 
+    // --- 追加: トグルの切り替え制御 ---
+    window.toggleFormMode = () => {
+      const type = document.querySelector('input[name="type"]:checked').value;
+      if (type === 'transfer') {
+        document.getElementById('normal-fields').classList.add('hidden');
+        document.getElementById('transfer-fields').classList.remove('hidden');
+      } else {
+        document.getElementById('normal-fields').classList.remove('hidden');
+        document.getElementById('transfer-fields').classList.add('hidden');
+      }
+    };
+
+    // --- 修正: アカウント一覧を全プルダウンに反映 ---
     function updateAccountDropdowns() {
-      const select = document.getElementById('input-account');
-      select.innerHTML = '';
-      accounts.forEach(acc => {
-        const opt = document.createElement('option');
-        opt.value = acc; opt.textContent = acc;
-        select.appendChild(opt);
-      });
-    }
-
-    window.addAccount = async () => {
-      const name = document.getElementById('new-account-name').value.trim();
-      if (!name) return;
-      accounts.push(name);
-      document.getElementById('new-account-name').value = '';
-      if(db) await setDoc(doc(db, "settings", "global"), { accounts, budget: monthlyBudget });
-    };
-
-    window.deleteAccount = async (accName) => {
-      if (!confirm(`アカウント「${accName}」を削除しますか？`)) return;
-      accounts = accounts.filter(a => a !== accName);
-      if(db) await setDoc(doc(db, "settings", "global"), { accounts, budget: monthlyBudget });
-    };
-
-    window.saveBudget = async () => {
-      const val = parseInt(document.getElementById('setting-budget').value);
-      if (isNaN(val)) return;
-      monthlyBudget = val;
-      if(db) await setDoc(doc(db, "settings", "global"), { accounts, budget: monthlyBudget });
-      alert("予算を保存しました");
-    };
-
-    function updateSettingsUI() {
-      document.getElementById('setting-budget').value = monthlyBudget;
-      const list = document.getElementById('settings-account-list');
-      list.innerHTML = '';
-      accounts.forEach(acc => {
-        const li = document.createElement('li');
-        li.className = "flex justify-between items-center bg-gray-800 p-2.5 rounded-lg text-sm border border-gray-700";
-        li.innerHTML = `
-          <span class="text-gray-200">${acc}</span>
-          <button onclick="deleteAccount('${acc}')" class="text-gray-500 hover:text-rose-400 transition-colors"><i class="fa-solid fa-trash"></i></button>
-        `;
-        list.appendChild(li);
-      });
-    }
-
-    // --- フォームの完全リセット関数 ---
-    function resetInputForm() {
-      document.getElementById('transaction-form').reset(); // 基本項目のリセット
-      document.getElementById('edit-id').value = ''; // 修正用IDクリア
-      document.getElementById('input-date').valueAsDate = new Date(); // 日付を今日に
-      document.querySelector('input[name="type"][value="expense"]').checked = true; // 支出に戻す
+      const selectAcc = document.getElementById('input-account');
+      const selectFrom = document.getElementById('transfer-from');
+      const selectTo = document.getElementById('transfer-to');
       
-      // selectタグを先頭に戻す
+      selectAcc.innerHTML = '';
+      selectFrom.innerHTML = '';
+      selectTo.innerHTML = '';
+      
+      accounts.forEach(acc => {
+        selectAcc.appendChild(new Option(acc, acc));
+        selectFrom.appendChild(new Option(acc, acc));
+        selectTo.appendChild(new Option(acc, acc));
+      });
+    }
+
+    // --- 修正: フォームリセット処理 ---
+    function resetInputForm() {
+      document.getElementById('transaction-form').reset();
+      document.getElementById('edit-id').value = ''; 
+      document.getElementById('input-date').valueAsDate = new Date(); 
+      document.querySelector('input[name="type"][value="expense"]').checked = true;
+      toggleFormMode(); // 表示を戻す
+      
       const accSelect = document.getElementById('input-account');
       if(accSelect.options.length > 0) accSelect.selectedIndex = 0;
       
       const catSelect = document.getElementById('input-category');
       if(catSelect.options.length > 0) catSelect.selectedIndex = 0;
 
+      const fromSelect = document.getElementById('transfer-from');
+      if(fromSelect.options.length > 0) fromSelect.selectedIndex = 0;
+      
+      const toSelect = document.getElementById('transfer-to');
+      if(toSelect.options.length > 1) toSelect.selectedIndex = 1; // 別のアカウントを初期選択
+
       document.getElementById('cancel-edit-btn').classList.add('hidden');
     }
 
+    // --- 修正: 保存ボタン押下時 ---
     document.getElementById('transaction-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       
       const editId = document.getElementById('edit-id').value;
+      const type = document.querySelector('input[name="type"]:checked').value;
+      
       const data = {
-        type: document.querySelector('input[name="type"]:checked').value,
+        type: type,
         date: document.getElementById('input-date').value,
         amount: parseInt(document.getElementById('input-amount').value),
-        account: document.getElementById('input-account').value,
-        category: document.getElementById('input-category').value,
         memo: document.getElementById('input-memo').value,
         timestamp: new Date().getTime()
       };
+
+      if (type === 'transfer') {
+        data.fromAccount = document.getElementById('transfer-from').value;
+        data.toAccount = document.getElementById('transfer-to').value;
+        if (data.fromAccount === data.toAccount) {
+          alert("移動元と移動先が同じです。別のアカウントを選択してください。");
+          return;
+        }
+      } else {
+        data.account = document.getElementById('input-account').value;
+        data.category = document.getElementById('input-category').value;
+      }
 
       try {
         if(db) {
@@ -448,71 +467,108 @@
             await addDoc(collection(db, "transactions"), data);
           }
         }
-        
-        // 成功したらフォームを完全にリセット
         resetInputForm();
         switchTab('dashboard'); 
-
       } catch (error) {
         console.error(error);
         alert("エラーが発生しました。");
       }
     });
 
+    // --- 修正: 履歴レンダリング処理（2行表示に対応） ---
     function renderHistory() {
       const tbody = document.getElementById('history-table-body');
       tbody.innerHTML = '';
       
       transactions.forEach(t => {
-        const isEx = t.type === 'expense';
-        const tr = document.createElement('tr');
-        tr.className = "border-b border-gray-800 hover:bg-gray-800/50 transition-colors";
-        tr.innerHTML = `
-          <td class="p-3 text-gray-300 font-mono text-xs">${t.date.slice(5)}</td>
-          <td class="p-3">
-            <div class="text-gray-200">${t.category}</div>
-            <div class="text-[10px] text-gray-500">${t.account} ${t.memo ? '- '+t.memo : ''}</div>
-          </td>
-          <td class="p-3 font-bold font-mono ${isEx ? 'text-rose-400' : 'text-emerald-400'}">
-            ${isEx ? '-' : '+'}¥${t.amount.toLocaleString()}
-          </td>
-          <td class="p-3 text-center">
-            <div class="flex justify-center gap-3">
-              <button onclick="editTransaction('${t.id}')" class="text-gray-500 hover:text-indigo-400 transition-colors"><i class="fa-solid fa-pen"></i></button>
-              <button onclick="deleteTransaction('${t.id}')" class="text-gray-500 hover:text-rose-400 transition-colors"><i class="fa-solid fa-trash"></i></button>
-            </div>
-          </td>
-        `;
-        tbody.appendChild(tr);
+        if (t.type === 'transfer') {
+          // 移動元 (マイナス行)
+          const trFrom = document.createElement('tr');
+          trFrom.className = "border-b border-gray-800 hover:bg-gray-800/50 transition-colors bg-blue-900/10";
+          trFrom.innerHTML = `
+            <td class="p-3 text-gray-300 font-mono text-xs">${t.date.slice(5)}</td>
+            <td class="p-3">
+              <div class="text-blue-300">資金移動 <span class="text-[10px] bg-rose-500/20 text-rose-300 px-1 rounded">出</span></div>
+              <div class="text-[10px] text-gray-500">${t.fromAccount} ${t.memo ? ' '+t.memo : ''}</div>
+            </td>
+            <td class="p-3 font-bold font-mono text-rose-400">-¥${t.amount.toLocaleString()}</td>
+            <td class="p-3 text-center">
+              <div class="flex justify-center gap-3">
+                <button onclick="editTransaction('${t.id}')" class="text-gray-500 hover:text-indigo-400 transition-colors"><i class="fa-solid fa-pen"></i></button>
+                <button onclick="deleteTransaction('${t.id}')" class="text-gray-500 hover:text-rose-400 transition-colors"><i class="fa-solid fa-trash"></i></button>
+              </div>
+            </td>
+          `;
+          tbody.appendChild(trFrom);
+
+          // 移動先 (プラス行)
+          const trTo = document.createElement('tr');
+          trTo.className = "border-b border-gray-800 hover:bg-gray-800/50 transition-colors bg-blue-900/10";
+          trTo.innerHTML = `
+            <td class="p-3 text-gray-300 font-mono text-xs">${t.date.slice(5)}</td>
+            <td class="p-3">
+              <div class="text-blue-300">資金移動 <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-1 rounded">入</span></div>
+              <div class="text-[10px] text-gray-500">${t.toAccount} ${t.memo ? ' '+t.memo : ''}</div>
+            </td>
+            <td class="p-3 font-bold font-mono text-emerald-400">+¥${t.amount.toLocaleString()}</td>
+            <td class="p-3 text-center">
+              <div class="text-xs text-gray-600"><i class="fa-solid fa-link"></i> 連動</div>
+            </td>
+          `;
+          tbody.appendChild(trTo);
+
+        } else {
+          // 通常の支出・収入
+          const isEx = t.type === 'expense';
+          const tr = document.createElement('tr');
+          tr.className = "border-b border-gray-800 hover:bg-gray-800/50 transition-colors";
+          tr.innerHTML = `
+            <td class="p-3 text-gray-300 font-mono text-xs">${t.date.slice(5)}</td>
+            <td class="p-3">
+              <div class="text-gray-200">${t.category}</div>
+              <div class="text-[10px] text-gray-500">${t.account} ${t.memo ? '- '+t.memo : ''}</div>
+            </td>
+            <td class="p-3 font-bold font-mono ${isEx ? 'text-rose-400' : 'text-emerald-400'}">
+              ${isEx ? '-' : '+'}¥${t.amount.toLocaleString()}
+            </td>
+            <td class="p-3 text-center">
+              <div class="flex justify-center gap-3">
+                <button onclick="editTransaction('${t.id}')" class="text-gray-500 hover:text-indigo-400 transition-colors"><i class="fa-solid fa-pen"></i></button>
+                <button onclick="deleteTransaction('${t.id}')" class="text-gray-500 hover:text-rose-400 transition-colors"><i class="fa-solid fa-trash"></i></button>
+              </div>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        }
       });
     }
 
-    window.deleteTransaction = async (id) => {
-      if (confirm("本当に削除しますか？")) {
-        if(db) await deleteDoc(doc(db, "transactions", id));
-      }
-    };
-
+    // --- 修正: 取引の編集処理 ---
     window.editTransaction = (id) => {
       const t = transactions.find(x => x.id === id);
       if(!t) return;
       
       document.getElementById('edit-id').value = t.id;
       document.querySelector(`input[name="type"][value="${t.type}"]`).checked = true;
+      toggleFormMode(); // 表示項目の切り替え
+
       document.getElementById('input-date').value = t.date;
       document.getElementById('input-amount').value = t.amount;
-      document.getElementById('input-account').value = t.account;
-      document.getElementById('input-category').value = t.category;
       document.getElementById('input-memo').value = t.memo || '';
+      
+      if (t.type === 'transfer') {
+        document.getElementById('transfer-from').value = t.fromAccount;
+        document.getElementById('transfer-to').value = t.toAccount;
+      } else {
+        document.getElementById('input-account').value = t.account;
+        document.getElementById('input-category').value = t.category;
+      }
       
       document.getElementById('cancel-edit-btn').classList.remove('hidden');
       switchTab('input');
     };
 
-    window.cancelEdit = () => {
-      resetInputForm();
-    }
-
+    // --- 修正: ダッシュボード計算ロジック（移動を計算から除外） ---
     function updateDashboard() {
       const now = new Date();
       const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2, '0')}`;
@@ -526,9 +582,10 @@
           if (t.type === 'expense') {
             thisMonthExpense += t.amount;
             categoryData[t.category] = (categoryData[t.category] || 0) + t.amount;
-          } else {
+          } else if (t.type === 'income') {
             thisMonthIncome += t.amount;
           }
+          // ※ type === 'transfer' の場合は収支の合計には影響させない
         }
       });
 
@@ -542,7 +599,6 @@
       bar.style.width = `${percent}%`;
       document.getElementById('budget-percent-text').textContent = `${percent}%`;
       
-      // ゲージの色制御（シックな色合い）
       if(percent >= 100) bar.className = 'h-2.5 rounded-full transition-all duration-1000 ease-out bg-rose-500';
       else if(percent >= 80) bar.className = 'h-2.5 rounded-full transition-all duration-1000 ease-out bg-orange-500';
       else bar.className = 'h-2.5 rounded-full transition-all duration-1000 ease-out bg-amber-500';
@@ -550,6 +606,7 @@
       drawPieChart(categoryData);
       drawLineChart();
     }
+
 
     // シックなチャートカラーパレット
     const chicColors = ['#d4af37', '#64748b', '#3b82f6', '#10b981', '#6366f1', '#8b5cf6', '#475569'];
