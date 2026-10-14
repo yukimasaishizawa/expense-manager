@@ -110,6 +110,22 @@
             <div class="relative h-48 w-full"><canvas id="lineChart"></canvas></div>
           </div>
         </div>
+
+        <!-- アカウント残高 -->
+        <div class="bg-gray-800 p-5 rounded-2xl shadow-lg border border-gray-700">
+          <h2 class="text-sm font-semibold text-gray-400 mb-3 uppercase tracking-wider"><i class="fa-solid fa-building-columns text-amber-500 mr-2"></i>アカウント残高</h2>
+          <div id="dashboard-accounts" class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <!-- JSで動的に追加 -->
+          </div>
+        </div>
+
+        <!-- 直近の取引履歴 -->
+        <div class="bg-gray-800 p-5 rounded-2xl shadow-lg border border-gray-700">
+          <h2 class="text-sm font-semibold text-gray-400 mb-3 uppercase tracking-wider"><i class="fa-solid fa-list text-amber-500 mr-2"></i>直近の取引履歴</h2>
+          <ul id="dashboard-recent-history" class="space-y-2">
+            <!-- JSで動的に追加 -->
+          </ul>
+        </div>
       </section>
 
       <!-- タブ2: 入出金登録 -->
@@ -694,6 +710,74 @@
 
       drawPieChart(categoryData);
       drawLineChart();
+
+      // --- アカウントごとの残高計算 ---
+      let accountBalances = {};
+      accounts.forEach(acc => accountBalances[acc] = 0);
+
+      transactions.forEach(t => {
+        if (t.type === 'expense') {
+          if (accountBalances[t.account] !== undefined) accountBalances[t.account] -= t.amount;
+        } else if (t.type === 'income') {
+          if (accountBalances[t.account] !== undefined) accountBalances[t.account] += t.amount;
+        } else if (t.type === 'transfer') {
+          if (accountBalances[t.fromAccount] !== undefined) accountBalances[t.fromAccount] -= t.amount;
+          if (accountBalances[t.toAccount] !== undefined) accountBalances[t.toAccount] += t.amount;
+        }
+      });
+
+      const accContainer = document.getElementById('dashboard-accounts');
+      if (accContainer) {
+        accContainer.innerHTML = '';
+        accounts.forEach(acc => {
+          const div = document.createElement('div');
+          div.className = 'bg-gray-900 p-3 rounded-lg border border-gray-700 flex flex-col';
+          div.innerHTML = `
+            <span class="text-xs text-gray-500 mb-1">${acc}</span>
+            <span class="text-sm font-bold text-gray-200 font-mono">¥${accountBalances[acc].toLocaleString()}</span>
+          `;
+          accContainer.appendChild(div);
+        });
+      }
+
+      // --- 直近の履歴を5件表示 ---
+      const recentContainer = document.getElementById('dashboard-recent-history');
+      if (recentContainer) {
+        recentContainer.innerHTML = '';
+        const recentTxs = transactions.slice(0, 5);
+        if (recentTxs.length === 0) {
+          recentContainer.innerHTML = '<li class="text-xs text-gray-500 text-center py-2">取引がありません</li>';
+        } else {
+          recentTxs.forEach(t => {
+            const li = document.createElement('li');
+            li.className = 'flex justify-between items-center bg-gray-900 p-2.5 rounded-lg border border-gray-700';
+            
+            let label = '';
+            let amountHtml = '';
+            if (t.type === 'transfer') {
+              label = `資金移動 (${t.fromAccount} → ${t.toAccount})`;
+              amountHtml = `<span class="text-blue-400 font-mono text-sm">¥${t.amount.toLocaleString()}</span>`;
+            } else if (t.type === 'expense') {
+              label = `${t.category} (${t.account})`;
+              amountHtml = `<span class="text-rose-400 font-mono text-sm">-¥${t.amount.toLocaleString()}</span>`;
+            } else {
+              label = `${t.category || '収入'} (${t.account})`;
+              amountHtml = `<span class="text-emerald-400 font-mono text-sm">+¥${t.amount.toLocaleString()}</span>`;
+            }
+
+            li.innerHTML = `
+              <div class="flex flex-col">
+                <span class="text-[10px] text-gray-400 font-mono mb-0.5">${t.date}</span>
+                <span class="text-xs text-gray-300 truncate max-w-[150px]">${label}</span>
+              </div>
+              <div class="font-bold">
+                ${amountHtml}
+              </div>
+            `;
+            recentContainer.appendChild(li);
+          });
+        }
+      }
     }
 
 
